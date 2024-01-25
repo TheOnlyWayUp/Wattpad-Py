@@ -1,3 +1,5 @@
+"""Pydantic Models representing Wattpad API Responses. Thanks https://jsontopydantic.com."""
+
 from __future__ import annotations
 
 from typing import List, Optional
