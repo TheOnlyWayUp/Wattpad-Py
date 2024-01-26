@@ -1,10 +1,136 @@
-"""Pydantic Models representing Wattpad API Responses. Thanks https://jsontopydantic.com."""
+"""Pydantic Models representing Wattpad API Responses. Thanks https://jsontopydantic.com. Thanks to Tushar Sadhwani (https://sadh.life) for helping me understand the Literal type (used in an earlier version of this code)."""
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Literal, TypedDict
+from typing_extensions import NotRequired
 
 from pydantic import BaseModel, Field
+
+
+class InboxModelFieldsType(TypedDict):
+    unread: NotRequired[bool]
+    total: NotRequired[bool]
+
+
+class NotificationsModelFieldsType(TypedDict):
+    unread: NotRequired[bool]
+
+
+class ConnectedServicesModelFieldsType(TypedDict):
+    facebook: NotRequired[bool]
+    twitter: NotRequired[bool]
+
+
+class UserModelFieldsType(TypedDict):
+    username: NotRequired[bool]
+    avatar: NotRequired[bool]
+    isPrivate: NotRequired[bool]
+    backgroundUrl: NotRequired[bool]
+    follower: NotRequired[bool]
+    following: NotRequired[bool]
+    name: NotRequired[bool]
+    description: NotRequired[bool]
+    status: NotRequired[bool]
+    gender: NotRequired[bool]
+    genderCode: NotRequired[bool]
+    language: NotRequired[bool]
+    locale: NotRequired[bool]
+    createDate: NotRequired[bool]
+    modifyDate: NotRequired[bool]
+    location: NotRequired[bool]
+    verified: NotRequired[bool]
+    ambassador: NotRequired[bool]
+    facebook: NotRequired[bool]
+    twitter: NotRequired[bool]
+    website: NotRequired[bool]
+    lulu: NotRequired[bool]
+    smashwords: NotRequired[bool]
+    bubok: NotRequired[bool]
+    votesReceived: NotRequired[bool]
+    numStoriesPublished: NotRequired[bool]
+    numFollowing: NotRequired[bool]
+    numFollowers: NotRequired[bool]
+    numMessages: NotRequired[bool]
+    numLists: NotRequired[bool]
+    verified_email: NotRequired[bool]
+    preferred_categories: NotRequired[bool]
+    allowCrawler: NotRequired[bool]
+    deeplink: NotRequired[bool]
+    isMuted: NotRequired[bool]
+    birthdate: NotRequired[bool]
+    age: NotRequired[int]
+    email: NotRequired[bool]
+    has_password: NotRequired[bool]
+
+    inbox: NotRequired[InboxModelFieldsType | bool]
+    notifications: NotRequired[NotificationsModelFieldsType | bool]
+    connectedServices: NotRequired[ConnectedServicesModelFieldsType | bool]
+
+
+class LanguageModelFieldsType(TypedDict):
+    id: NotRequired[bool]
+    name: NotRequired[bool]
+
+
+class PublishedModelFieldsType(TypedDict):
+    id: NotRequired[bool]
+    createDate: NotRequired[bool]
+
+
+class PartModelFieldsType(TypedDict):
+    id: NotRequired[bool]
+    title: NotRequired[bool]
+    url: NotRequired[bool]
+    modifyDate: NotRequired[bool]
+    createDate: NotRequired[bool]
+    commentCount: NotRequired[bool]
+    voteCount: NotRequired[bool]
+    readCount: NotRequired[bool]
+
+
+class TagRankingModelFieldsType(TypedDict):
+    name: NotRequired[bool]
+    rank: NotRequired[bool]
+    total: NotRequired[bool]
+
+
+class StoryModelFieldsType(TypedDict):
+    id: NotRequired[bool]
+    title: NotRequired[bool]
+    createDate: NotRequired[bool]
+    modifyDate: NotRequired[bool]
+    voteCount: NotRequired[bool]
+    readCount: NotRequired[bool]
+    commentCount: NotRequired[bool]
+    user: NotRequired[bool]
+    description: NotRequired[bool]
+    completed: NotRequired[bool]
+    tags: NotRequired[bool]
+    rating: NotRequired[bool]
+    mature: NotRequired[bool]
+    url: NotRequired[bool]
+    isPaywalled: NotRequired[bool]
+    cover: NotRequired[bool]
+    cover_timestamp: NotRequired[bool]
+    categories: NotRequired[bool]
+    copyright: NotRequired[bool]
+    firstPartId: NotRequired[bool]
+    numParts: NotRequired[bool]
+    deleted: NotRequired[bool]
+
+    parts: NotRequired[PartModelFieldsType | bool]
+    tagRankings: NotRequired[TagRankingModelFieldsType | bool]
+    firstPublishedPart: NotRequired[PublishedModelFieldsType | bool]
+    lastPublishedPart: NotRequired[PublishedModelFieldsType | bool]
+    language: NotRequired[LanguageModelFieldsType | bool]
+
+
+class ListModelFieldsType(TypedDict):
+    id: NotRequired[bool]
+    name: NotRequired[bool]
+
+    stories: NotRequired[StoryModelFieldsType | bool]
 
 
 class InboxModel(BaseModel):
