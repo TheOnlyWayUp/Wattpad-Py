@@ -148,8 +148,7 @@ class ConnectedServicesModel(BaseModel):
 
 
 class UserModel(BaseModel):
-    username: str
-
+    username: Optional[str] = None
     avatar: Optional[str] = None
     is_private: Optional[bool] = Field(None, alias="isPrivate")
     background_url: Optional[str] = Field(None, alias="backgroundUrl")
@@ -242,24 +241,13 @@ class StoryModel(BaseModel):
     vote_count: Optional[int] = Field(None, alias="voteCount")
     read_count: Optional[int] = Field(None, alias="readCount")
     comment_count: Optional[int] = Field(None, alias="commentCount")
-    language: Optional[LanguageModel] = None
-    user: Optional[UserModel] = None
     description: Optional[str] = None
     completed: Optional[bool] = None
     tags: Optional[List[str]] = None
     rating: Optional[int] = None
     mature: Optional[bool] = None
     url: Optional[str] = None
-    first_published_part: Optional[FirstPublishedPartModel] = Field(
-        None, alias="firstPublishedPart"
-    )
-    last_published_part: Optional[LastPublishedPartModel] = Field(
-        None, alias="lastPublishedPart"
-    )
-    parts: List[PartModel] = []
-    tag_rankings: list[TagRankingModel] = Field([], alias="tagRankings")
     is_paywalled: Optional[bool] = Field(None, alias="isPaywalled")
-
     cover: Optional[str] = None
     cover_timestamp: Optional[str] = None
     categories: Optional[List[int]] = None
@@ -269,6 +257,16 @@ class StoryModel(BaseModel):
     deleted: Optional[bool] = None
 
     recommended: list[StoryModel] = []
+    first_published_part: Optional[FirstPublishedPartModel] = Field(
+        None, alias="firstPublishedPart"
+    )
+    last_published_part: Optional[LastPublishedPartModel] = Field(
+        None, alias="lastPublishedPart"
+    )
+    language: Optional[LanguageModel] = None
+    user: Optional[UserModel] = None
+    parts: List[PartModel] = []
+    tag_rankings: list[TagRankingModel] = Field([], alias="tagRankings")
 
 
 class ListModel(BaseModel):
