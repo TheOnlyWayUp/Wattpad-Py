@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 from models import (
     ListModel,
     ListModelFieldsType,
@@ -30,8 +30,11 @@ class User:
         else:
             include_fields: UserModelFieldsType = include
 
-        data = await fetch_url(
-            build_url(f"users/{self.data.username}", fields=dict(include_fields))
+        data = cast(
+            dict,
+            await fetch_url(
+                build_url(f"users/{self.data.username}", fields=dict(include_fields))
+            ),
         )
         if "username" in data:
             data.pop("username")
@@ -57,7 +60,7 @@ class User:
             build_url(f"users/{self.data.username}/stories", fields=None)
             + f"&fields=stories({construct_fields(dict(include_fields))})"  # ! The field format for story retrieval differs here. It's /stories?fields=stories(<fields>). Compared to the usual /path?fields=<fields>. For this reason, we need to manually edit the fields in.
         )
-        data = await fetch_url(url)
+        data = cast(dict, await fetch_url(url))
 
         stories: list[StoryModel] = []
         for story in data["stories"]:
@@ -101,7 +104,7 @@ class User:
             )
             + f"&fields=users({construct_fields(dict(include_fields))})"  # ! Similar to story retrieval, requested fields need to be wrapped in `users(<fields>)`.
         )
-        data = await fetch_url(url)
+        data = cast(dict, await fetch_url(url))
 
         self.data.followed_by_users = [UserModel(**user) for user in data["users"]]
         self.data.num_followers = len(self.data.followed_by_users)
@@ -135,7 +138,7 @@ class User:
             )
             + f"&fields=users({construct_fields(dict(include_fields))})"  # ! Similar to story retrieval, requested fields need to be wrapped in `users(<fields>)`.
         )
-        data = await fetch_url(url)
+        data = cast(dict, await fetch_url(url))
 
         self.data.following_users = [UserModel(**user) for user in data["users"]]
         self.data.num_following = len(self.data.followed_by_users)
@@ -167,7 +170,7 @@ class User:
             )
             + f"&fields=lists({construct_fields(dict(include_fields))})"  # ! Similar to story retrieval, requested fields need to be wrapped in `lists(<fields>)`.
         )
-        data = await fetch_url(url)
+        data = cast(dict, await fetch_url(url))
 
         self.data.lists = [ListModel(**list_) for list_ in data["lists"]]
         self.data.num_lists = len(self.data.lists)
