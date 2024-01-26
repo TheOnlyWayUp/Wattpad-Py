@@ -148,7 +148,8 @@ class ConnectedServicesModel(BaseModel):
 
 
 class UserModel(BaseModel):
-    username: Optional[str] = None
+    username: str
+
     avatar: Optional[str] = None
     is_private: Optional[bool] = Field(None, alias="isPrivate")
     background_url: Optional[str] = Field(None, alias="backgroundUrl")
@@ -196,7 +197,6 @@ class UserModel(BaseModel):
     following_users: list[UserModel] = []
     followed_by_users: list[UserModel] = []
     stories: List[StoryModel] = []
-    total_stories: int = Field(0, alias="total")
     lists: List[ListModel] = []
 
 
