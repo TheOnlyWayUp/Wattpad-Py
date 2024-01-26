@@ -70,7 +70,7 @@ def build_url(
     return url
 
 
-async def fetch_url(url: str, headers: dict = {}) -> dict:
+async def fetch_url(url: str, headers: dict = {}) -> dict | list:
     use_headers = base_headers.copy()
     use_headers.update(headers)
 
