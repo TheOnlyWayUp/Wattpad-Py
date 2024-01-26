@@ -103,7 +103,6 @@ class StoryModelFieldsType(TypedDict):
     voteCount: NotRequired[bool]
     readCount: NotRequired[bool]
     commentCount: NotRequired[bool]
-    user: NotRequired[bool]
     description: NotRequired[bool]
     completed: NotRequired[bool]
     tags: NotRequired[bool]
@@ -124,6 +123,7 @@ class StoryModelFieldsType(TypedDict):
     firstPublishedPart: NotRequired[PublishedModelFieldsType | bool]
     lastPublishedPart: NotRequired[PublishedModelFieldsType | bool]
     language: NotRequired[LanguageModelFieldsType | bool]
+    user: NotRequired[UserModelFieldsType | bool]
 
 
 class ListModelFieldsType(TypedDict):
