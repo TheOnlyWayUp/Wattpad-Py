@@ -1,5 +1,12 @@
 from typing import Optional
-from models import StoryModel, UserModel, UserModelFieldsType, StoryModelFieldsType
+from models import (
+    ListModel,
+    ListModelFieldsType,
+    StoryModel,
+    UserModel,
+    UserModelFieldsType,
+    StoryModelFieldsType,
+)
 from utils import get_fields, build_url, fetch_url, construct_fields
 
 
@@ -13,7 +20,7 @@ class User:
     def __repr__(self) -> str:
         return f"<User username={self.username}>"
 
-    async def create(self, include: bool | UserModelFieldsType = False) -> dict:
+    async def fetch(self, include: bool | UserModelFieldsType = False) -> dict:
         if include is False:
             include_fields: UserModelFieldsType = {}
         elif include is True:
@@ -73,7 +80,7 @@ class User:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> dict:
-        """Populate a User's followers. For best performance, use the limit and offset parameters. Requests may time out occassionally, if the limit is too high. Follower's usernames are _always_ returned."""
+        """Populate a User's followers. For best performance, use the limit and offset parameters. If the limit is too high, requests may time out. Follower's usernames are _always_ returned."""
         if include is False:
             include_fields: UserModelFieldsType = {}
         elif include is True:
@@ -107,7 +114,7 @@ class User:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> dict:
-        """Populate the users this User follows. For best performance, use the limit and offset parameters. Requests may time out occassionally, if the limit is too high. Follower's usernames are _always_ returned."""
+        """Populate the users this User follows. For best performance, use the limit and offset parameters. if the limit is too high, requests may time out. Follower's usernames are _always_ returned."""
         if include is False:
             include_fields: UserModelFieldsType = {}
         elif include is True:
@@ -132,5 +139,37 @@ class User:
 
         self.data.following_users = [UserModel(**user) for user in data["users"]]
         self.data.num_following = len(self.data.followed_by_users)
+
+        return data
+
+    async def fetch_lists(
+        self,
+        include: bool | ListModelFieldsType = False,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> dict:
+        """Populate a User's lists. The API can slow down for large responses. Use the limit and offset parameters for efficiency."""
+        if include is False:
+            include_fields: ListModelFieldsType = {}
+        elif include is True:
+            include_fields: ListModelFieldsType = {
+                key: True for key in get_fields(ListModel)  # type: ignore
+            }
+        else:
+            include_fields: ListModelFieldsType = include
+
+        url = (
+            build_url(
+                f"users/{self.data.username}/lists",
+                fields=None,
+                limit=limit,
+                offset=offset,
+            )
+            + f"&fields=lists({construct_fields(dict(include_fields))})"  # ! Similar to story retrieval, requested fields need to be wrapped in `lists(<fields>)`.
+        )
+        data = await fetch_url(url)
+
+        self.data.lists = [ListModel(**list_) for list_ in data["lists"]]
+        self.data.num_lists = len(self.data.lists)
 
         return data
