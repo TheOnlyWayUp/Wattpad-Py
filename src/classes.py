@@ -61,8 +61,76 @@ class User:
             )  # TODO: Make Stories, Parts, and Users singletons for memory-efficiency.
 
         self.data.stories = stories
-        self.data.total_stories = len(
+        self.data.num_stories_published = len(
             self.data.stories
         )  # ! The data['total'] can also be used, but it isn't always present. (Based on included_fields.)
+
+        return data
+
+    async def fetch_followers(
+        self,
+        include: bool | UserModelFieldsType = False,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> dict:
+        """Populate a User's followers. For best performance, use the limit and offset parameters. Requests may time out occassionally, if the limit is too high. Follower's usernames are _always_ returned."""
+        if include is False:
+            include_fields: UserModelFieldsType = {}
+        elif include is True:
+            include_fields: UserModelFieldsType = {
+                key: True for key in get_fields(UserModel)  # type: ignore
+            }
+        else:
+            include_fields: UserModelFieldsType = include
+
+        include_fields["username"] = True
+
+        url = (
+            build_url(
+                f"users/{self.data.username}/followers",
+                fields=None,
+                limit=limit,
+                offset=offset,
+            )
+            + f"&fields=users({construct_fields(dict(include_fields))})"  # ! Similar to story retrieval, requested fields need to be wrapped in `users(<fields>)`.
+        )
+        data = await fetch_url(url)
+
+        self.data.followed_by_users = [UserModel(**user) for user in data["users"]]
+        self.data.num_followers = len(self.data.followed_by_users)
+
+        return data
+
+    async def fetch_following(
+        self,
+        include: bool | UserModelFieldsType = False,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> dict:
+        """Populate the users this User follows. For best performance, use the limit and offset parameters. Requests may time out occassionally, if the limit is too high. Follower's usernames are _always_ returned."""
+        if include is False:
+            include_fields: UserModelFieldsType = {}
+        elif include is True:
+            include_fields: UserModelFieldsType = {
+                key: True for key in get_fields(UserModel)  # type: ignore
+            }
+        else:
+            include_fields: UserModelFieldsType = include
+
+        include_fields["username"] = True
+
+        url = (
+            build_url(
+                f"users/{self.data.username}/following",
+                fields=None,
+                limit=limit,
+                offset=offset,
+            )
+            + f"&fields=users({construct_fields(dict(include_fields))})"  # ! Similar to story retrieval, requested fields need to be wrapped in `users(<fields>)`.
+        )
+        data = await fetch_url(url)
+
+        self.data.following_users = [UserModel(**user) for user in data["users"]]
+        self.data.num_following = len(self.data.followed_by_users)
 
         return data
