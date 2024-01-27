@@ -1,6 +1,21 @@
+"""Copyright (C) 2024 TheOnlyWayUp
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
+
+---
+
+Utility functions for the wattpad package."""
+
 from typing import Optional
+
 import aiohttp
+from aiohttp_client_cache import CachedSession
 from pydantic import BaseModel
+from os import environ
 
 base_headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 OPR/105.0.0.0"
@@ -71,10 +86,16 @@ def build_url(
 
 
 async def fetch_url(url: str, headers: dict = {}) -> dict | list:
+    """Perform a GET Request to the provided URL. Using the headers provided, merged with base_headers."""
     use_headers = base_headers.copy()
     use_headers.update(headers)
 
-    async with aiohttp.ClientSession(headers=use_headers) as session:
+    if environ["WPPY_SKIP_CACHE"]:
+        session = aiohttp.ClientSession
+    else:
+        session = CachedSession
+
+    async with session(headers=use_headers) as session:
         async with session.get(url) as response:
             response.raise_for_status()
             return await response.json()

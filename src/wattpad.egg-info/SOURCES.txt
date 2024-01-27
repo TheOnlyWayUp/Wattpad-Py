@@ -1,0 +1,15 @@
+LICENSE
+README.md
+setup.cfg
+setup.py
+src/wattpad/__init__.py
+src/wattpad/model_types.py
+src/wattpad/models.py
+src/wattpad/py.typed
+src/wattpad/utils.py
+src/wattpad/wattpad.py
+src/wattpad.egg-info/PKG-INFO
+src/wattpad.egg-info/SOURCES.txt
+src/wattpad.egg-info/dependency_links.txt
+src/wattpad.egg-info/requires.txt
+src/wattpad.egg-info/top_level.txt

@@ -1,6 +1,8 @@
 __pycache__
-venv
+*venv
 .env
 .vscode
 *.ipynb
 *json
+dist
+*info
