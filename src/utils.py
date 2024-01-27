@@ -77,3 +77,15 @@ async def fetch_url(url: str, headers: dict = {}) -> dict | list:
     async with aiohttp.ClientSession(headers=use_headers) as session:
         async with session.get(url) as response:
             return await response.json()
+
+
+def singleton(cls):
+    # Thanks https://medium.com/@pavankumarmasters/exploring-the-singleton-design-pattern-in-python-a34efa5e8cfa
+    instances = {}
+
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+
+    return get_instance

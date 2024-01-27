@@ -7,15 +7,16 @@ from models import (
     UserModelFieldsType,
     StoryModelFieldsType,
 )
-from utils import get_fields, build_url, fetch_url, construct_fields
+from utils import get_fields, build_url, fetch_url, construct_fields, singleton
 
 
+@singleton
 class User:
     """User Model"""
 
-    def __init__(self, username, **kwargs):
-        self.username = username
-        self.data = UserModel(username=username, **kwargs)
+    def __init__(self, username: str, **kwargs):
+        self.username = username.lower()
+        self.data = UserModel(username=self.username, **kwargs)
 
     def __repr__(self) -> str:
         return f"<User username={self.username}>"

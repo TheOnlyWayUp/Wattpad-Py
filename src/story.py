@@ -1,21 +1,20 @@
 from typing import Optional, cast
 from models import (
-    ListModel,
-    ListModelFieldsType,
     StoryModel,
     UserModel,
     UserModelFieldsType,
     StoryModelFieldsType,
 )
-from utils import get_fields, build_url, fetch_url, construct_fields
+from utils import get_fields, build_url, fetch_url, singleton
 
 
+@singleton
 class Story:
     """Story Model"""
 
     def __init__(self, id: str, **kwargs):
-        self.id = id
-        self.data = StoryModel(id=id, **kwargs)
+        self.id = id.lower()
+        self.data = StoryModel(id=self.id, **kwargs)
 
     def __repr__(self) -> str:
         return f"<Story id={self.id}>"
