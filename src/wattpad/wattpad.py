@@ -30,13 +30,29 @@ from utils import get_fields, build_url, fetch_url, construct_fields, singleton
 
 @singleton
 class User:
-    """User Model"""
+    """A representation of a User on Wattpad.
+    **Note**: Users are singletons, unique as per their username. Two user classes with the same username are the _same_.
+
+    Attributes:
+        username (str): Lowercased username of this User.
+        stories (list[Story]): Stories authored by this User.
+        followers (list[User]): Users that follow this User.
+        following (list[User]): Users this User follows.
+        lists (list[List]): Lists created by this User.
+        data (UserModel): User Data from the Wattpad API.
+    """
 
     def __init__(self, username: str, **kwargs):
+        """Create a User object.
+
+        Args:
+            username (str): The username of this User.
+            **kwargs: Arguments to pass directly to the underlying `UserModel`. These are ignored if the User has been instantiated earlier in the runtime.
+        """
         self.username = username.lower()
         self.stories: list[Story] = []
-        self.following: list[User] = []
         self.followers: list[User] = []
+        self.following: list[User] = []
         self.lists: list[List] = []
 
         self.data = UserModel(username=self.username, **kwargs)
@@ -45,6 +61,14 @@ class User:
         return f"<User username={self.username}>"
 
     async def fetch(self, include: bool | UserModelFieldsType = False) -> dict:
+        """Populates a User's data. Call this method after instantiation.
+
+        Args:
+            include (bool | UserModelFieldsType, optional): Fields to fetch. True fetches all fields. Defaults to False.
+
+        Returns:
+            dict: The raw API Response.
+        """
         if include is False:
             include_fields: UserModelFieldsType = {}
         elif include is True:
@@ -68,7 +92,14 @@ class User:
         return data
 
     async def fetch_stories(self, include: bool | StoryModelFieldsType = False) -> dict:
-        """Populate a User's authored stories. The ID Field is _always_ returned."""
+        """Fetch a User's authored stories.
+
+        Args:
+            include (bool | StoryModelFieldsType, optional): Fields of authored stories to fetch. True fetches all fields. Defaults to False.
+
+        Returns:
+            dict: The raw API Response.
+        """
         if include is False:
             include_fields: StoryModelFieldsType = {}
         elif include is True:
@@ -90,9 +121,7 @@ class User:
         for story in data["stories"]:
             if "user" in story:
                 story.pop("user")
-            stories.append(
-                Story(user=self, **story)
-            )  # TODO: Make Stories, Parts, and Users singletons for memory-efficiency.
+            stories.append(Story(user=self, **story))
 
         self.stories = stories
         self.data.num_stories_published = len(
@@ -107,7 +136,16 @@ class User:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> dict:
-        """Populate a User's followers. For best performance, use the limit and offset parameters. If the limit is too high, requests may time out. Follower's usernames are _always_ returned."""
+        """Fetches the User's followers.
+
+        Args:
+            include (bool | UserModelFieldsType, optional): Fields of the following users' to fetch. True fetches all fields. Defaults to False.
+            limit (Optional[int], optional): Maximum number of users to return at once. Use this alongside `offset` for better performance. Defaults to None.
+            offset (Optional[int], optional): Number of users to skip before returning followers. Use this alongside `limit` for better performance. Defaults to None.
+
+        Returns:
+            dict: The raw API Response.
+        """
         if include is False:
             include_fields: UserModelFieldsType = {}
         elif include is True:
@@ -141,7 +179,16 @@ class User:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> dict:
-        """Populate the users this User follows. For best performance, use the limit and offset parameters. if the limit is too high, requests may time out. Follower's usernames are _always_ returned."""
+        """Fetch the users this User follows.
+
+        Args:
+            include (bool | UserModelFieldsType, optional): Fields of the followed users' to fetch. True fetches all fields. Defaults to False.
+            limit (Optional[int], optional): Maximum number of users to return at once. Use this alongside `offset` for better performance. Defaults to None.
+            offset (Optional[int], optional): Number of users to skip before returning followers. Use this alongside `limit` for better performance. Defaults to None.
+
+        Returns:
+            dict: The raw API Response.
+        """
         if include is False:
             include_fields: UserModelFieldsType = {}
         elif include is True:
@@ -175,7 +222,16 @@ class User:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> dict:
-        """Populate a User's lists. The API can slow down for large responses. Use the limit and offset parameters for efficiency. List IDs are _always_ returned."""
+        """Fetch a User's lists.
+
+        Args:
+            include (bool | ListModelFieldsType, optional): Fields of the lists to fetch. True fetches all fields. Defaults to False.
+            limit (Optional[int], optional): Maximum number of users to return at once. Use this alongside `offset` for better performance. Defaults to None.
+            offset (Optional[int], optional): Number of users to skip before returning followers. Use this alongside `limit` for better performance. Defaults to None.
+
+        Returns:
+            dict: The raw API Response.
+        """
         if include is False:
             include_fields: ListModelFieldsType = {}
         elif include is True:
@@ -198,7 +254,7 @@ class User:
         )
         data = cast(dict, await fetch_url(url))
 
-        self.lists = [List(**list_) for list_ in data["lists"]]
+        self.lists = [List(user=self, **list_) for list_ in data["lists"]]
         self.data.num_lists = len(self.lists)
 
         return data
@@ -209,9 +265,23 @@ class User:
 
 @singleton
 class Story:
-    """Story Model"""
+    """A representation of a Story on Wattpad.
+    **Note**: Stories are singletons, unique as per their ID. Two story classes with the same ID are the _same_.
+
+    Attributes:
+        id (str): Lowercased ID of this Story.
+        user (User): The User who authored this Story.
+        recommended (list[Story]): Stories recommended from this Story.
+        data (StoryModel): Story Data from the Wattpad API.
+    """
 
     def __init__(self, id: str, user: User, **kwargs):
+        """Create a Story object.
+
+        Args:
+            id (str): The ID of the Story.
+            user (User): The User who authored this Story.
+        """
         self.id = id.lower()
         self.user: User = user
         self.recommended: list[Story] = []
@@ -222,7 +292,14 @@ class Story:
         return f"<Story id={self.id}>"
 
     async def fetch(self, include: bool | StoryModelFieldsType = False) -> dict:
-        """Fetch the Story's data. The author's username is _always_ returned."""
+        """Populates a Story's data. Call this method after instantiation.
+
+        Args:
+            include (bool | StoryModelFieldsType, optional): Fields to fetch. True fetches all fields. Defaults to False.
+
+        Returns:
+            dict: The raw API Response.
+        """
         if include is False:
             include_fields: StoryModelFieldsType = {}
         elif include is True:
@@ -263,7 +340,16 @@ class Story:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> list:
-        """Populate a Story's recommended stories. The story's ID, and the author's username are _always_ returned."""
+        """Fetch Stories recommended from this Story.
+
+        Args:
+            include (bool | StoryModelFieldsType, optional): Fields to fetch of the recommended stories. True fetches all fields. Defaults to False.
+            limit (Optional[int], optional): Maximum number of users to return at once. Use this alongside `offset` for better performance. Defaults to None.
+            offset (Optional[int], optional): Number of users to skip before returning followers. Use this alongside `limit` for better performance. Defaults to None.
+
+        Returns:
+            dict: The raw API Response.
+        """
         if include is False:
             include_fields: StoryModelFieldsType = {}
         elif include is True:
@@ -309,11 +395,28 @@ class Story:
 
 @singleton
 class List:
-    """List Model"""
+    """A representation of a List on Wattpad.
+    **Note**: Lists are singletons, unique as per their ID. Two List classes with the same ID are the _same_.
 
-    def __init__(self, id: str, name: str = "", stories: list[Story] = []):
+    Attributes:
+        id (str): Lowercased ID of this List.
+        name (str): The name of this List.
+        user (User): The User who created this List.
+        stories (list[Story]): Stories included within this List.
+    """
+
+    def __init__(self, id: str, user: User, name: str = "", stories: list[Story] = []):
+        """Creates a List object.
+
+        Args:
+            id (str): The ID of this List.
+            user (User): The User who created this List.
+            name (str, optional): The name of this List. Defaults to "".
+            stories (list[Story], optional): The Stories within this List. Defaults to [].
+        """
         self.id = id.lower()
         self.name: str = name
+        self.user: User = user
         self.stories: list[Story] = stories
 
     def __repr__(self) -> str:

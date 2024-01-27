@@ -18,20 +18,28 @@ from pydantic import BaseModel, Field
 
 
 class InboxModel(BaseModel):
+    """Represents a User's Inbox."""
+
     unread: int
     total: int
 
 
 class NotificationsModel(BaseModel):
+    """Represents a User's Notifications."""
+
     unread: int
 
 
 class ConnectedServicesModel(BaseModel):
+    """Represents a User's Connected Services."""
+
     facebook: bool
     twitter: bool
 
 
 class UserModel(BaseModel):
+    """Represents a User."""
+
     username: str
 
     avatar: Optional[str] = None
@@ -80,21 +88,29 @@ class UserModel(BaseModel):
 
 
 class LanguageModel(BaseModel):
+    """Represents a Language."""
+
     id: int
     name: str
 
 
 class FirstPublishedPartModel(BaseModel):
+    """Represents the first published part of a Story."""
+
     id: int
     create_date: str = Field(..., alias="createDate")
 
 
 class LastPublishedPartModel(BaseModel):
+    """Represents the last (most recent) published part of a Story."""
+
     id: int
     create_date: str = Field(..., alias="createDate")
 
 
 class PartModel(BaseModel):
+    """Represents a Part of a Story."""
+
     id: int
     title: str
     url: str
@@ -106,12 +122,16 @@ class PartModel(BaseModel):
 
 
 class TagRankingModel(BaseModel):
+    """Represents a Story's Tag Rankings."""
+
     name: str
     rank: int
     total: int
 
 
 class StoryModel(BaseModel):
+    """Represents a Story."""
+
     id: str
 
     title: Optional[str] = None
@@ -148,6 +168,8 @@ class StoryModel(BaseModel):
 
 
 class ListModel(BaseModel):
+    """Represents a User's List."""
+
     id: int
     name: str
     stories: List[StoryModel]

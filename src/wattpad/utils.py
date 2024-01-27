@@ -11,9 +11,8 @@ You should have received a copy of the GNU General Public License along with thi
 Utility functions for the wattpad package."""
 
 from typing import Optional
-
 import aiohttp
-from aiohttp_client_cache import CachedSession
+from aiohttp_client_cache import CachedSession  # type: ignore
 from pydantic import BaseModel
 from os import environ
 
@@ -23,7 +22,14 @@ base_headers = {
 
 
 def get_fields(model: BaseModel) -> list[str]:
-    """Return fields of a model, preferring an alias if present."""
+    """Retrieve the fields of a Pydantic Model. Prefer field aliases if present.
+
+    Args:
+        model (BaseModel): The model to retrieve fields from.
+
+    Returns:
+        list[str]: A list of fields.
+    """
     attribs = []
     for name, field in model.model_fields.items():
         if field.alias:
@@ -34,9 +40,10 @@ def get_fields(model: BaseModel) -> list[str]:
 
 
 def construct_fields(fields: dict) -> str:
-    """Construct a fields query string from a dictionary.
+    """Constructs a field query string from a dictionary representing the same.
 
     Example:
+    ```py
     >>> d: StoryModelFieldsType = {
         "tags": True,
         "id": True,
@@ -44,7 +51,15 @@ def construct_fields(fields: dict) -> str:
         "tagRankings": True
     }
     >>> construct_fields(d)
-    'tags,id,parts(id),tagRankings'"""
+    'tags,id,parts(id),tagRankings'
+    ```
+
+    Args:
+        fields (dict): Field Data.
+
+    Returns:
+        str: Field Query String.
+    """
     fields_str = ""
 
     for key, value in fields.items():
@@ -68,7 +83,17 @@ def build_url(
     limit: Optional[int] = None,
     offset: Optional[int] = None,
 ) -> str:
-    """Build a URL."""
+    """Build an API Request URL.
+
+    Args:
+        path (str): The API Endpoint to request.
+        fields (Optional[dict], optional): Fields Data, processed by `construct_fields`. Defaults to None.
+        limit (Optional[int], optional): Number of records to limit the response to. Defaults to None.
+        offset (Optional[int], optional): Number of records to skip before beginning the response. Defaults to None.
+
+    Returns:
+        str: The built URL.
+    """
     base_url = f"https://www.wattpad.com/api/v3/{path}?"
     if fields:
         fields_str = construct_fields(fields)
@@ -86,7 +111,16 @@ def build_url(
 
 
 async def fetch_url(url: str, headers: dict = {}) -> dict | list:
-    """Perform a GET Request to the provided URL. Using the headers provided, merged with base_headers."""
+    """Perform a GET Request to the provided URL, merging the provided headers with `base_headers`.
+    **Note**: API Responses are cached using the URL as a key. Set the `WPPY_SKIP_CACHE` Environment Variable to True to bypass the cache.
+
+    Args:
+        url (str): The URL to request.
+        headers (dict, optional): Additional headers to merge atop of `base_headers`. Defaults to {}.
+
+    Returns:
+        dict | list: The JSON-Decoded Response.
+    """
     use_headers = base_headers.copy()
     use_headers.update(headers)
 
@@ -102,9 +136,12 @@ async def fetch_url(url: str, headers: dict = {}) -> dict | list:
 
 
 def singleton(cls):
-    """Singleton Decorator. Uses the first parameter as the key. Ensure it is a string.
+    """Make a class a singleton using the first argument as the key.
 
     Thanks https://medium.com/@pavankumarmasters/exploring-the-singleton-design-pattern-in-python-a34efa5e8cfa.
+
+    Returns:
+        function: The nested `get_instance` function which handles singleton instance checking.
     """
     instances = {}
 
