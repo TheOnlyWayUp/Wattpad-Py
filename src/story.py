@@ -2,9 +2,8 @@ from typing import Optional, cast
 from models import (
     StoryModel,
     UserModel,
-    UserModelFieldsType,
-    StoryModelFieldsType,
 )
+from model_types import UserModelFieldsType, StoryModelFieldsType
 from utils import get_fields, build_url, fetch_url, singleton
 
 
@@ -12,9 +11,9 @@ from utils import get_fields, build_url, fetch_url, singleton
 class Story:
     """Story Model"""
 
-    def __init__(self, id: str, **kwargs):
+    def __init__(self, id: str):
         self.id = id.lower()
-        self.data = StoryModel(id=self.id, **kwargs)
+        self.data = StoryModel(id=self.id)  # type: ignore | Due to some fields (like createDate having aliases using Pydantic's fields), the typechecker doesn't know they're optional. No issues during runtime.
 
     def __repr__(self) -> str:
         return f"<Story id={self.id}>"

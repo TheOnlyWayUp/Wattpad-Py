@@ -1,12 +1,10 @@
 from typing import Optional, cast
 from models import (
     ListModel,
-    ListModelFieldsType,
     StoryModel,
     UserModel,
-    UserModelFieldsType,
-    StoryModelFieldsType,
 )
+from model_types import ListModelFieldsType, UserModelFieldsType, StoryModelFieldsType
 from utils import get_fields, build_url, fetch_url, construct_fields, singleton
 
 
@@ -14,9 +12,9 @@ from utils import get_fields, build_url, fetch_url, construct_fields, singleton
 class User:
     """User Model"""
 
-    def __init__(self, username: str, **kwargs):
+    def __init__(self, username: str):
         self.username = username.lower()
-        self.data = UserModel(username=self.username, **kwargs)
+        self.data = UserModel(username=self.username)  # type: ignore | Due to some fields (like isPrivate having aliases using Pydantic's fields), the typechecker doesn't know they're optional. No issues during runtime.
 
     def __repr__(self) -> str:
         return f"<User username={self.username}>"
