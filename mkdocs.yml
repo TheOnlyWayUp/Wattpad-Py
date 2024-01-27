@@ -1,0 +1,20 @@
+# Thanks https://realpython.com/python-project-documentation-with-mkdocs/#adapt-your-project-settings-file
+site_name: Wattpad
+
+theme:
+  name: "material"
+
+plugins:
+  - mkdocstrings
+
+nav:
+  - Home: index.md
+  - quickstart.md
+  - recipes.md
+  - API Reference:
+    - User: reference/user.md
+    - Story: reference/story.md
+    - Utilities: reference/utils.md
+    - Models:
+      - Models: reference/models.md
+      - Types: reference/model_types.md
