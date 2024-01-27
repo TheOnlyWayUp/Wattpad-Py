@@ -66,11 +66,6 @@ class UserModel(BaseModel):
     email: Optional[str] = None
     has_password: Optional[bool] = None
 
-    following_users: list[UserModel] = []
-    followed_by_users: list[UserModel] = []
-    stories: List[StoryModel] = []
-    lists: List[ListModel] = []
-
 
 class LanguageModel(BaseModel):
     id: int
@@ -128,7 +123,6 @@ class StoryModel(BaseModel):
     num_parts: Optional[int] = Field(None, alias="numParts")
     deleted: Optional[bool] = None
 
-    recommended: list[StoryModel] = []
     first_published_part: Optional[FirstPublishedPartModel] = Field(
         None, alias="firstPublishedPart"
     )

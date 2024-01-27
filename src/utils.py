@@ -76,16 +76,25 @@ async def fetch_url(url: str, headers: dict = {}) -> dict | list:
 
     async with aiohttp.ClientSession(headers=use_headers) as session:
         async with session.get(url) as response:
+            response.raise_for_status()
             return await response.json()
 
 
 def singleton(cls):
-    # Thanks https://medium.com/@pavankumarmasters/exploring-the-singleton-design-pattern-in-python-a34efa5e8cfa
+    """Singleton Decorator. Uses the first parameter as the key. Ensure it is a string.
+
+    Thanks https://medium.com/@pavankumarmasters/exploring-the-singleton-design-pattern-in-python-a34efa5e8cfa.
+    """
     instances = {}
 
     def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
+        id = args[0].lower()
+
+        if id in instances:
+            return instances[id]
+        else:
+            instances[id] = cls(*args, **kwargs)
+
+        return instances[id]
 
     return get_instance

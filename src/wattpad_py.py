@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional, cast
 from models import (
     ListModel,
@@ -12,9 +13,14 @@ from utils import get_fields, build_url, fetch_url, construct_fields, singleton
 class User:
     """User Model"""
 
-    def __init__(self, username: str):
+    def __init__(self, username: str, **kwargs):
         self.username = username.lower()
-        self.data = UserModel(username=self.username)  # type: ignore | Due to some fields (like isPrivate having aliases using Pydantic's fields), the typechecker doesn't know they're optional. No issues during runtime.
+        self.stories: list[Story] = []
+        self.following: list[User] = []
+        self.followers: list[User] = []
+        self.lists: list[List] = []
+
+        self.data = UserModel(username=self.username, **kwargs)
 
     def __repr__(self) -> str:
         return f"<User username={self.username}>"
@@ -61,17 +67,17 @@ class User:
         )
         data = cast(dict, await fetch_url(url))
 
-        stories: list[StoryModel] = []
+        stories: list[Story] = []
         for story in data["stories"]:
             if "user" in story:
                 story.pop("user")
             stories.append(
-                StoryModel(user=self.data, **story)
+                Story(user=self, **story)
             )  # TODO: Make Stories, Parts, and Users singletons for memory-efficiency.
 
-        self.data.stories = stories
+        self.stories = stories
         self.data.num_stories_published = len(
-            self.data.stories
+            self.stories
         )  # ! The data['total'] can also be used, but it isn't always present. (Based on included_fields.)
 
         return data
@@ -105,8 +111,8 @@ class User:
         )
         data = cast(dict, await fetch_url(url))
 
-        self.data.followed_by_users = [UserModel(**user) for user in data["users"]]
-        self.data.num_followers = len(self.data.followed_by_users)
+        self.followers = [User(**user) for user in data["users"]]
+        self.data.num_followers = len(self.followers)
 
         return data
 
@@ -139,8 +145,8 @@ class User:
         )
         data = cast(dict, await fetch_url(url))
 
-        self.data.following_users = [UserModel(**user) for user in data["users"]]
-        self.data.num_following = len(self.data.followed_by_users)
+        self.following = [User(**user) for user in data["users"]]
+        self.data.num_following = len(self.following)
 
         return data
 
@@ -150,7 +156,7 @@ class User:
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> dict:
-        """Populate a User's lists. The API can slow down for large responses. Use the limit and offset parameters for efficiency."""
+        """Populate a User's lists. The API can slow down for large responses. Use the limit and offset parameters for efficiency. List IDs are _always_ returned."""
         if include is False:
             include_fields: ListModelFieldsType = {}
         elif include is True:
@@ -159,6 +165,8 @@ class User:
             }
         else:
             include_fields: ListModelFieldsType = include
+
+        include_fields["id"] = True
 
         url = (
             build_url(
@@ -171,7 +179,123 @@ class User:
         )
         data = cast(dict, await fetch_url(url))
 
-        self.data.lists = [ListModel(**list_) for list_ in data["lists"]]
-        self.data.num_lists = len(self.data.lists)
+        self.lists = [List(**list_) for list_ in data["lists"]]
+        self.data.num_lists = len(self.lists)
 
         return data
+
+
+# --- #
+
+
+@singleton
+class Story:
+    """Story Model"""
+
+    def __init__(self, id: str, user: User, **kwargs):
+        self.id = id.lower()
+        self.user: User = user
+        self.recommended: list[Story] = []
+        # self.parts: list[Part]  # ! NotImplemented. In the future, if Part text retrieval is a part of this library, that would warrant the creation of a seperate Part singleton. Right now, having self.parts would cause inconsistency with the rest of the library.
+        self.data = StoryModel(id=self.id, **kwargs)
+
+    def __repr__(self) -> str:
+        return f"<Story id={self.id}>"
+
+    async def fetch(self, include: bool | StoryModelFieldsType = False) -> dict:
+        """Fetch the Story's data. The author's username is _always_ returned."""
+        if include is False:
+            include_fields: StoryModelFieldsType = {}
+        elif include is True:
+            include_fields: StoryModelFieldsType = {
+                key: True for key in get_fields(StoryModel)  # type: ignore
+            }
+        else:
+            include_fields: StoryModelFieldsType = include
+
+        if "user" in include_fields:
+            if include_fields["user"] is True:
+                include_fields["user"] = cast(
+                    UserModelFieldsType, {key: True for key in get_fields(UserModel)}  # type: ignore
+                )
+            elif include_fields["user"] is False:
+                include_fields["user"] = {"username": True}
+            else:
+                include_fields["user"]["username"] = True
+        else:
+            include_fields["user"] = {"username": True}
+
+        data = cast(
+            dict,
+            await fetch_url(
+                build_url(f"stories/{self.data.id}", fields=dict(include_fields))
+            ),
+        )
+        if "id" in data:
+            data.pop("id")
+
+        self.data = StoryModel(id=self.id, **data)
+
+        return data
+
+    async def fetch_recommended(
+        self,
+        include: bool | StoryModelFieldsType = False,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> list:
+        """Populate a Story's recommended stories. The story's ID, and the author's username are _always_ returned."""
+        if include is False:
+            include_fields: StoryModelFieldsType = {}
+        elif include is True:
+            include_fields: StoryModelFieldsType = {
+                key: True for key in get_fields(StoryModel)  # type: ignore
+            }
+        else:
+            include_fields: StoryModelFieldsType = include
+
+        include_fields["id"] = True
+
+        if "user" in include_fields:
+            if include_fields["user"] is True:
+                include_fields["user"] = cast(
+                    UserModelFieldsType, {key: True for key in get_fields(UserModel)}  # type: ignore
+                )
+            elif include_fields["user"] is False:
+                include_fields["user"] = {"username": True}
+            else:
+                include_fields["user"]["username"] = True
+        else:
+            include_fields["user"] = {"username": True}
+
+        data = cast(
+            list[dict],
+            await fetch_url(
+                build_url(
+                    f"stories/{self.data.id}/recommended",
+                    fields=dict(include_fields),
+                    limit=limit,
+                    offset=offset,
+                )
+            ),
+        )
+
+        self.recommended = [Story(**story) for story in data]
+
+        return data
+
+
+# --- #
+
+
+@singleton
+class List:
+    """List Model"""
+
+    def __init__(self, id: str, name: str = "", stories: list[Story] = []):
+        self.id = id.lower()
+        self.name: str = name
+        self.stories: list[Story] = stories
+
+    def __repr__(self) -> str:
+        return f"<List id={self.id}>"
