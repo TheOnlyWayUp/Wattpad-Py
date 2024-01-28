@@ -1,16 +1,42 @@
 # Thanks https://realpython.com/python-project-documentation-with-mkdocs/#adapt-your-project-settings-file
+# Thanks https://www.mkdocs.org/user-guide/configuration/
+
 site_name: Wattpad
+repo_url: https://github.com/TheOnlyWayUp/wattpad/
+site_url: https://wattpad.rambhat.la
+site_author: TheOnlyWayUp
+
+strict: true
+
 
 theme:
   name: "material"
+  favicon: "wattpad.svg"
 
 plugins:
   - mkdocstrings
+  - mkdocs-jupyter
+
+markdown_extensions:
+  - toc:
+      permalink: "#"
+  - pymdownx.snippets:
+      check_paths: true
+
+
+
+watch:
+  - docs
+  - mkdocs.yml
+  - src
+  - README.md
 
 nav:
   - Home: index.md
-  - quickstart.md
-  - recipes.md
+  - quickstart.ipynb
+  - Memory Efficiency and Caching: memory-efficiency.md
+  - Synchronous and Asynchronous Usage: sync-and-async.md
+  - Autocompletion Support: types-and-autocompletion.md
   - API Reference:
     - User: reference/user.md
     - Story: reference/story.md
