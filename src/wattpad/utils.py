@@ -10,9 +10,9 @@ You should have received a copy of the GNU General Public License along with thi
 
 Utility functions for the wattpad package."""
 
-from typing import Optional
+from typing import Any, Optional
 import aiohttp
-from aiohttp_client_cache import CachedSession  # type: ignore
+from aiohttp_client_cache.session import CachedSession
 from pydantic import BaseModel
 from os import environ
 
@@ -135,7 +135,7 @@ async def fetch_url(url: str, headers: dict = {}) -> dict | list:
             return await response.json()
 
 
-def singleton(cls):
+def singleton(cls) -> Any:
     """Make a class a singleton using the first argument as the key.
 
     Thanks https://medium.com/@pavankumarmasters/exploring-the-singleton-design-pattern-in-python-a34efa5e8cfa.

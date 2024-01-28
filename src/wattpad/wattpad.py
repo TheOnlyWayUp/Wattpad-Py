@@ -47,7 +47,7 @@ class User:
 
         Args:
             username (str): The username of this User.
-            **kwargs: Arguments to pass directly to the underlying `UserModel`. These are ignored if the User has been instantiated earlier in the runtime.
+            **kwargs (any): Arguments to pass directly to the underlying `UserModel`. These are ignored if the User has been instantiated earlier in the runtime.
         """
         self.username = username.lower()
         self.stories: list[Story] = []
