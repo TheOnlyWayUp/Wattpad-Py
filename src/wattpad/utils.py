@@ -149,7 +149,6 @@ def create_singleton() -> Any:
 
         def __call__(cls, *args, **kwargs):
             key: str = args[0].lower()
-            print(cls, args, kwargs, key)
             if key not in cls._instances:
                 cls._instances[key] = super(SingletonMeta, cls).__call__(
                     *args, **kwargs
