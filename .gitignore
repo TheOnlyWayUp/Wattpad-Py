@@ -4,4 +4,4 @@ __pycache__
 .vscode
 *json
 dist
-*info
+*egg-info
