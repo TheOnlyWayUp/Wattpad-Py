@@ -124,7 +124,7 @@ async def fetch_url(url: str, headers: dict = {}) -> dict | list:
     use_headers = base_headers.copy()
     use_headers.update(headers)
 
-    if environ["WPPY_SKIP_CACHE"]:
+    if environ.get("WPPY_SKIP_CACHE", False):
         session = aiohttp.ClientSession
     else:
         session = CachedSession
@@ -135,24 +135,25 @@ async def fetch_url(url: str, headers: dict = {}) -> dict | list:
             return await response.json()
 
 
-def singleton(cls) -> Any:
+def create_singleton() -> Any:
     """Make a class a singleton using the first argument as the key.
 
-    Thanks https://medium.com/@pavankumarmasters/exploring-the-singleton-design-pattern-in-python-a34efa5e8cfa.
+    Thanks https://medium.com/@pavankumarmasters/exploring-the-singleton-design-pattern-in-python-a34efa5e8cfa#:~:text=Code%20Magic%3A%20Conjuring%20Singletons%20with%20Metaclasses.
 
     Returns:
-        function: The nested `get_instance` function which handles singleton instance checking.
+        SingletonMeta: The Singleton metaclass.
     """
-    instances = {}
 
-    def get_instance(*args, **kwargs):
-        id = args[0].lower()
+    class SingletonMeta(type):
+        _instances = {}
 
-        if id in instances:
-            return instances[id]
-        else:
-            instances[id] = cls(*args, **kwargs)
+        def __call__(cls, *args, **kwargs):
+            key: str = args[0].lower()
+            print(cls, args, kwargs, key)
+            if key not in cls._instances:
+                cls._instances[key] = super(SingletonMeta, cls).__call__(
+                    *args, **kwargs
+                )
+            return cls._instances[key]
 
-        return instances[id]
-
-    return get_instance
+    return SingletonMeta
