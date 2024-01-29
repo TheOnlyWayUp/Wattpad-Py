@@ -19,17 +19,16 @@ Use `help(User)` for information. Refer to the documentation for more.
 
 from __future__ import annotations
 from typing import Optional, cast
-from models import (
+from .models import (
     ListModel,
     StoryModel,
     UserModel,
 )
-from model_types import ListModelFieldsType, UserModelFieldsType, StoryModelFieldsType
-from utils import get_fields, build_url, fetch_url, construct_fields, singleton
+from .model_types import ListModelFieldsType, UserModelFieldsType, StoryModelFieldsType
+from .utils import get_fields, build_url, fetch_url, construct_fields, create_singleton
 
 
-@singleton
-class User:
+class User(metaclass=create_singleton()):
     """A representation of a User on Wattpad.
     **Note**: Users are singletons, unique as per their username. Two user classes with the same username are the _same_.
 
@@ -263,8 +262,7 @@ class User:
 # --- #
 
 
-@singleton
-class Story:
+class Story(metaclass=create_singleton()):
     """A representation of a Story on Wattpad.
     **Note**: Stories are singletons, unique as per their ID. Two story classes with the same ID are the _same_.
 
@@ -393,8 +391,7 @@ class Story:
 # --- #
 
 
-@singleton
-class List:
+class List(metaclass=create_singleton()):
     """A representation of a List on Wattpad.
     **Note**: Lists are singletons, unique as per their ID. Two List classes with the same ID are the _same_.
 
