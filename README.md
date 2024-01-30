@@ -83,3 +83,11 @@ We use [conventional commits](https://www.conventionalcommits.org) (also known a
 ## Attributions
 
 This README is heavily inspired by the README in the [RobertCraigie/prisma-client-py](https://github.com/RobertCraigie/prisma-client-py) repository.
+
+---
+
+<br>
+
+<div align="center">
+    <p>TheOnlyWayUp © 2024</p>
+</div>
