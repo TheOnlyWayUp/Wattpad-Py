@@ -34,9 +34,9 @@ pip install -U wattpad
 ---
 
 
-<!-- ![GIF showcasing Wattpad Python usage](showcase.gif)
+![GIF showcasing Wattpad Python usage](./demo.gif)
 
-> _Note that the only language server that is known to support this form of autocompletion is Pylance / Pyright._ -->
+> _Note that the only language server that is known to support this form of autocompletion is Pylance / Pyright._
 
 ## Why should you use `wattpad`?
 
