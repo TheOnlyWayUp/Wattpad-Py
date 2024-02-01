@@ -36,7 +36,6 @@ nav:
   - quickstart.ipynb
   - Memory Efficiency and Caching: memory-efficiency.ipynb
   - Synchronous and Asynchronous Usage: sync-and-async.ipynb
-  - Autocompletion Support: types-and-autocompletion.md
   - API Reference:
     - User: reference/user.md
     - Story: reference/story.md
