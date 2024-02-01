@@ -110,6 +110,10 @@ class User(metaclass=create_singleton()):
 
         include_fields["id"] = True
 
+        if "tagRankings" in include_fields:
+            if type(include_fields["tagRankings"]) is dict:
+                include_fields["tagRankings"]["name"] = True
+
         url = (
             build_url(f"users/{self.data.username}/stories", fields=None)
             + f"&fields=stories({construct_fields(dict(include_fields))})"  # ! The field format for story retrieval differs here. It's /stories?fields=stories(<fields>). Compared to the usual /path?fields=<fields>. For this reason, we need to manually edit the fields in.

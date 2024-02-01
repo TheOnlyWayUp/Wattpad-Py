@@ -125,8 +125,8 @@ class TagRankingModel(BaseModel):
     """Represents a Story's Tag Rankings."""
 
     name: str
-    rank: int
-    total: int
+    rank: Optional[int] = None
+    total: Optional[int] = None
 
 
 class StoryModel(BaseModel):
