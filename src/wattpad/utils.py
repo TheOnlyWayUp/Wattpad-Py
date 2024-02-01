@@ -12,9 +12,11 @@ Utility functions for the wattpad package."""
 
 from typing import Any, Optional
 import aiohttp
+import weakref
+from threading import Lock  # https://stackoverflow.com/a/77918570
+from os import environ
 from aiohttp_client_cache.session import CachedSession
 from pydantic import BaseModel
-from os import environ
 
 base_headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 OPR/105.0.0.0"
@@ -145,14 +147,25 @@ def create_singleton() -> Any:
     """
 
     class SingletonMeta(type):
-        _instances = {}
+        _instances = (
+            weakref.WeakValueDictionary()
+        )  # Thanks to https://stackoverflow.com/a/77918570
+        # ! This is to prevent memory leaking. Python objects are only GC'd when their reference count hits zero. Due the reference from the singleton dict, the RC will be 1 at minimum, when no user-facing code is interfacing with it. To prevent this, the WeakValueDictionary is used. It's values don't count their presence in this dict as a reference, and hence, there's no interference with garbage collection.  |  Thanks to ChatGPT for giving me the idea of looking into the weakref package.
+        LOCK = Lock()
 
         def __call__(cls, *args, **kwargs):
-            key: str = args[0].lower()
-            if key not in cls._instances:
-                cls._instances[key] = super(SingletonMeta, cls).__call__(
-                    *args, **kwargs
-                )
-            return cls._instances[key]
+            with cls.LOCK:  # To prevent cases where two threads see a missing entry and both threads try to populate it. | https://stackoverflow.com/questions/77918487/python-magic-method-for-when-the-objects-reference-count-changes#comment137367057_77918570
+                if args:
+                    key: str = args[0].lower()
+                else:
+                    if "username" in kwargs:
+                        key: str = kwargs["username"]
+                    else:
+                        key: str = kwargs["id"]
+
+                if key not in cls._instances:
+                    new = super(SingletonMeta, cls).__call__(*args, **kwargs)
+                    cls._instances[key] = new
+                return cls._instances[key]
 
     return SingletonMeta
