@@ -26,17 +26,24 @@
 ## What is `wattpad`?
 The `wattpad` package is an asynchronous wrapper around the Wattpad User API.
 
-```sh
-pip install -U wattpad
-```
-[Read the Docs](https://wattpad.rambhat.la).
-
----
-
 
 ![GIF showcasing Wattpad Python usage](./demo.gif)
 
 > _Note that the only language server that is known to support this form of autocompletion is Pylance / Pyright._
+
+<br>
+
+
+<iframe src="https://ghbtns.com/github-btn.html?user=TheOnlyWayUp&type=follow&count=true&size=large" frameborder="0" scrolling="0" width="230" height="30" title="GitHub"></iframe>
+<iframe src="https://ghbtns.com/github-btn.html?user=TheOnlyWayUp&repo=Wattpad-Py&type=watch&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
+
+<br>
+
+
+```sh
+pip install -U wattpad
+```
+<br>
 
 ## Why should you use `wattpad`?
 
@@ -50,7 +57,7 @@ The most compelling of all, is the **autocompletion support**. (For autocomplete
 
 - [Memory Efficiency & Caching](https://wattpad.rambhat.la/memory-efficiency)
 - [Asynchronous Usage](https://wattpad.rambhat.la/sync-and-async)
-- [Autocompletion Support and Fully Typed Codebase](https://wattpad.rambhat.la/types-and-autocompletion)
+- Autocompletion Support and Fully Typed Codebase
 
 ### Using `wattpad`
 Check out the [quickstart notebook](https://wattpad.rambhat.la/quickstart)!
@@ -58,7 +65,7 @@ Check out the [quickstart notebook](https://wattpad.rambhat.la/quickstart)!
 For a more thorough introduction, visit the [documentation](https:/wattpad.rambhat.la).
 
 
-## Support
+## Get Support
 
 Have any questions or need help using `wattpad`? Join the [community discord](https://discord.gg/edyB4k3hwU)!
 
