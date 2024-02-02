@@ -112,13 +112,13 @@ class PartModel(BaseModel):
     """Represents a Part of a Story."""
 
     id: int
-    title: str
-    url: str
-    modify_date: str = Field(..., alias="modifyDate")
-    create_date: str = Field(..., alias="createDate")
-    comment_count: int = Field(..., alias="commentCount")
-    vote_count: int = Field(..., alias="voteCount")
-    read_count: int = Field(..., alias="readCount")
+    title: Optional[str] = None
+    url: Optional[str] = None
+    modify_date: Optional[str] = Field(None, alias="modifyDate")
+    create_date: Optional[str] = Field(None, alias="createDate")
+    comment_count: Optional[int] = Field(None, alias="commentCount")
+    vote_count: Optional[int] = Field(None, alias="voteCount")
+    read_count: Optional[int] = Field(None, alias="readCount")
 
 
 class TagRankingModel(BaseModel):
