@@ -34,9 +34,9 @@ The `wattpad` package is an asynchronous wrapper around the Wattpad User API.
 <br>
 
 
-![Follow Badge](https://img.shields.io/badge/-%40TheOnlyWayUp-blue?style=for-the-badge&logo=github&logoColor=green&label=Follow&link=https%3A%2F%2Fgithub.com%2FTheOnlyWayUp) 
-![Star Badge](https://img.shields.io/badge/-Wattpad--Py-orange?style=for-the-badge&logoColor=green&label=Star%20%E2%AD%90&link=https%3A%2F%2Fgithub.com%2FTheOnlyWayUp%2FWattpad-Py)
-
+[![Follow Badge](https://img.shields.io/badge/-%40TheOnlyWayUp-blue?style=for-the-badge&logo=github&logoColor=green&label=Follow&link=https%3A%2F%2Fgithub.com%2FTheOnlyWayUp)](https://github.com/TheOnlyWayUp)
+[![Star Badge](https://img.shields.io/badge/-Wattpad--Py-orange?style=for-the-badge&logoColor=green&label=Star%20%E2%AD%90&link=https%3A%2F%2Fgithub.com%2FTheOnlyWayUp%2FWattpad-Py)
+](https://github.com/TheOnlyWayUp/Wattpad-Py)
 
 <br>
 
