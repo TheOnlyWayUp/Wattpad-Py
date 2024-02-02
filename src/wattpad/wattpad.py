@@ -25,7 +25,14 @@ from .models import (
     UserModel,
 )
 from .model_types import ListModelFieldsType, UserModelFieldsType, StoryModelFieldsType
-from .utils import get_fields, build_url, fetch_url, construct_fields, create_singleton
+from .utils import (
+    get_fields,
+    convert_from_aliases,
+    build_url,
+    fetch_url,
+    construct_fields,
+    create_singleton,
+)
 
 
 class User(metaclass=create_singleton()):
@@ -114,6 +121,10 @@ class User(metaclass=create_singleton()):
             if type(include_fields["tagRankings"]) is dict:
                 include_fields["tagRankings"]["name"] = True
 
+        if "parts" in include_fields:
+            if type(include_fields["parts"]) is dict:
+                include_fields["parts"]["id"] = True
+
         url = (
             build_url(f"users/{self.data.username}/stories", fields=None)
             + f"&fields=stories({construct_fields(dict(include_fields))})"  # ! The field format for story retrieval differs here. It's /stories?fields=stories(<fields>). Compared to the usual /path?fields=<fields>. For this reason, we need to manually edit the fields in.
@@ -124,7 +135,15 @@ class User(metaclass=create_singleton()):
         for story in data["stories"]:
             if "user" in story:
                 story.pop("user")
-            stories.append(Story(user=self, **story))
+
+            id_ = story.pop("id")
+
+            story_cls = Story(
+                user=self, id=id_
+            )  # ! This code is an artefact of the singleton design model. If a user already exists, their data will not be updated otherwise.
+            story_cls._update_data(**story)
+
+            stories.append(story_cls)
 
         self.stories = stories
         self.data.num_stories_published = len(
@@ -171,7 +190,16 @@ class User(metaclass=create_singleton()):
         )
         data = cast(dict, await fetch_url(url))
 
-        self.followers = [User(**user) for user in data["users"]]
+        followers: list[User] = []
+        for user in data["users"]:
+            username = user.pop("username")
+            user_cls = User(
+                username=username
+            )  # ! This code is an artefact of the singleton design model. If a user already exists, their data will not be updated otherwise.
+            user_cls._update_data(**user)
+            followers.append(user_cls)
+
+        self.followers = followers
         self.data.num_followers = len(self.followers)
 
         return data
@@ -214,7 +242,16 @@ class User(metaclass=create_singleton()):
         )
         data = cast(dict, await fetch_url(url))
 
-        self.following = [User(**user) for user in data["users"]]
+        following: list[User] = []
+        for user in data["users"]:
+            username = user.pop("username")
+            user_cls = User(
+                username=username
+            )  # ! This code is an artefact of the singleton design model. If a user already exists, their data will not be updated otherwise.
+            user_cls._update_data(**user)
+            following.append(user_cls)
+
+        self.followers = following
         self.data.num_following = len(self.following)
 
         return data
@@ -257,10 +294,29 @@ class User(metaclass=create_singleton()):
         )
         data = cast(dict, await fetch_url(url))
 
-        self.lists = [List(user=self, **list_) for list_ in data["lists"]]
+        lists: list[List] = []
+        for list_ in data["lists"]:
+            id_ = list_.pop("id")
+            list_cls = List(
+                id=id_, user=self
+            )  # ! This code is an artefact of the singleton design model. If a list already exists, its data will not be updated otherwise.
+            list_cls._update_data(**list_)
+            lists.append(list_cls)
+
+        self.lists = lists
         self.data.num_lists = len(self.lists)
 
         return data
+
+    def _update_data(self, **kwargs):
+        """Updates self.data with kwargs, overwriting any duplicate values with a preference towards kwargs.
+
+        Returns:
+            None: Nothing is returned.
+        """
+        self.data = self.data.model_copy(
+            update=convert_from_aliases(kwargs, self.data), deep=True
+        )
 
 
 # --- #
@@ -391,6 +447,16 @@ class Story(metaclass=create_singleton()):
 
         return data
 
+    def _update_data(self, **kwargs):
+        """Updates self.data with kwargs, overwriting any duplicate values with a preference towards kwargs.
+
+        Returns:
+            None: Nothing is returned.
+        """
+        self.data = self.data.model_copy(
+            update=convert_from_aliases(kwargs, self.data), deep=True
+        )
+
 
 # --- #
 
@@ -422,3 +488,21 @@ class List(metaclass=create_singleton()):
 
     def __repr__(self) -> str:
         return f"<List id={self.id}>"
+
+    def _update_data(
+        self,
+        name: Optional[str] = None,
+        user: Optional[User] = None,
+        stories: Optional[list[Story]] = None,
+    ):
+        """Updates self.data with the provided arguments, overwriting any duplicate values with a preference towards provided arguments.
+
+        Returns:
+            None: Nothing is returned.
+        """
+        if name:
+            self.name = name
+        if user:
+            self.user = user
+        if stories:
+            self.stories = stories
