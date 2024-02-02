@@ -2,7 +2,7 @@
 # Thanks https://www.mkdocs.org/user-guide/configuration/
 
 site_name: Wattpad
-repo_url: https://github.com/TheOnlyWayUp/wattpad/
+repo_url: https://github.com/TheOnlyWayUp/Wattpad-Py/
 site_url: https://wattpad-py.readthedocs.io/en/latest/
 site_author: TheOnlyWayUp
 
