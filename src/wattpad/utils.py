@@ -23,22 +23,54 @@ base_headers = {
 }
 
 
-def get_fields(model: BaseModel) -> list[str]:
-    """Retrieve the fields of a Pydantic Model. Prefer field aliases if present.
+def get_fields(model: BaseModel, prefer_alias: bool = True) -> list[str]:
+    """Retrieve the fields of a Pydantic Model.
 
     Args:
         model (BaseModel): The model to retrieve fields from.
+        prefer_alias (bool | optional): Whether to prefer field aliases if present. Defaults to True.
 
     Returns:
         list[str]: A list of fields.
     """
     attribs = []
     for name, field in model.model_fields.items():
-        if field.alias:
+        if field.alias and prefer_alias:
             attribs.append(field.alias)
         else:
             attribs.append(name)
     return attribs
+
+
+def convert_from_aliases(data: dict, model: BaseModel) -> dict:
+    """Convert a dictionary's keys from a model's aliased fields to their original names.
+
+    Args:
+        data (dict): The dictionary whose keys must be changed. Nested dictionaries are _not_ supported.
+        model (BaseModel): The BaseModel to derive aliases from.
+
+    Returns:
+        dict: Updated dictionary with keys that are aliases replaced for their non-aliased variants.
+    """
+    to_return = {}
+
+    fields = get_fields(model)
+    fields_without_alias = get_fields(model, prefer_alias=False)
+
+    alias_to_original: dict[str, str] = {}
+
+    for alias, original in zip(fields, fields_without_alias):
+        if alias == original:
+            continue
+        alias_to_original[alias] = original
+
+    for key, value in data.items():
+        if key in alias_to_original:
+            to_return[alias_to_original[key]] = value
+        else:
+            to_return[key] = value
+
+    return to_return
 
 
 def construct_fields(fields: dict) -> str:
