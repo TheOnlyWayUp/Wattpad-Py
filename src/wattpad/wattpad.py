@@ -196,6 +196,9 @@ class User(metaclass=create_singleton()):
             user_cls = User(
                 username=username
             )  # ! This code is an artefact of the singleton design model. If a user already exists, their data will not be updated otherwise.
+            user_cls.following.append(
+                self
+            )  # ! The current user is followed by this fetched user
             user_cls._update_data(**user)
             followers.append(user_cls)
 
@@ -245,10 +248,15 @@ class User(metaclass=create_singleton()):
         following: list[User] = []
         for user in data["users"]:
             username = user.pop("username")
+
             user_cls = User(
                 username=username
             )  # ! This code is an artefact of the singleton design model. If a user already exists, their data will not be updated otherwise.
+            user_cls.followers.append(
+                self
+            )  # ! The current user follows this fetched user
             user_cls._update_data(**user)
+
             following.append(user_cls)
 
         self.followers = following
