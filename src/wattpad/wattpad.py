@@ -44,7 +44,7 @@ class User(metaclass=create_singleton()):
         stories (list[Story]): Stories authored by this User.
         followers (list[User]): Users that follow this User.
         following (list[User]): Users this User follows.
-        lists (list[List]): Lists created by this User.
+        lists (set[List]): Lists created by this User.
         data (UserModel): User Data from the Wattpad API.
     """
 
@@ -57,9 +57,9 @@ class User(metaclass=create_singleton()):
         """
         self.username = username.lower()
         self.stories: list[Story] = []
-        self.followers: list[User] = []
-        self.following: list[User] = []
-        self.lists: list[List] = []
+        self.followers: set[User] = set()
+        self.following: set[User] = set()
+        self.lists: set[List] = set()
 
         self.data = UserModel(username=self.username, **kwargs)
 
@@ -190,19 +190,19 @@ class User(metaclass=create_singleton()):
         )
         data = cast(dict, await fetch_url(url))
 
-        followers: list[User] = []
+        followers: set[User] = set()
         for user in data["users"]:
             username = user.pop("username")
             user_cls = User(
                 username=username
             )  # ! This code is an artefact of the singleton design model. If a user already exists, their data will not be updated otherwise.
-            user_cls.following.append(
+            user_cls.following.add(
                 self
             )  # ! The current user is followed by this fetched user
             user_cls._update_data(**user)
-            followers.append(user_cls)
+            followers.add(user_cls)
 
-        self.followers = followers
+        self.followers.update(followers)
         self.data.num_followers = len(self.followers)
 
         return data
@@ -245,21 +245,19 @@ class User(metaclass=create_singleton()):
         )
         data = cast(dict, await fetch_url(url))
 
-        following: list[User] = []
+        following: set[User] = set()
         for user in data["users"]:
             username = user.pop("username")
 
             user_cls = User(
                 username=username
             )  # ! This code is an artefact of the singleton design model. If a user already exists, their data will not be updated otherwise.
-            user_cls.followers.append(
-                self
-            )  # ! The current user follows this fetched user
+            user_cls.followers.add(self)  # ! The current user follows this fetched user
             user_cls._update_data(**user)
 
-            following.append(user_cls)
+            following.add(user_cls)
 
-        self.followers = following
+        self.followers.update(following)
         self.data.num_following = len(self.following)
 
         return data
@@ -291,6 +289,10 @@ class User(metaclass=create_singleton()):
 
         include_fields["id"] = True
 
+        if "stories" in include_fields:
+            if type(include_fields["stories"]) is dict:
+                include_fields["stories"]["id"] = True
+
         url = (
             build_url(
                 f"users/{self.data.username}/lists",
@@ -302,16 +304,24 @@ class User(metaclass=create_singleton()):
         )
         data = cast(dict, await fetch_url(url))
 
-        lists: list[List] = []
+        lists: set[List] = set()
         for list_ in data["lists"]:
             id_ = list_.pop("id")
             list_cls = List(
                 id=id_, user=self
             )  # ! This code is an artefact of the singleton design model. If a list already exists, its data will not be updated otherwise.
-            list_cls._update_data(**list_)
-            lists.append(list_cls)
 
-        self.lists = lists
+            stories: set[Story] = set()
+            for story in list_["stories"]:
+                s_id_ = story.pop("id")
+                story_cls = Story(id=s_id_)
+                story_cls._update_data(**story)
+                stories.add(story_cls)
+
+            list_cls.stories.update(stories)
+            lists.add(list_cls)
+
+        self.lists.update(lists)
         self.data.num_lists = len(self.lists)
 
         return data
@@ -341,7 +351,7 @@ class Story(metaclass=create_singleton()):
         data (StoryModel): Story Data from the Wattpad API.
     """
 
-    def __init__(self, id: str, user: User, **kwargs):
+    def __init__(self, id: str, user: Optional[User] = None, **kwargs):
         """Create a Story object.
 
         Args:
@@ -349,7 +359,7 @@ class Story(metaclass=create_singleton()):
             user (User): The User who authored this Story.
         """
         self.id = id.lower()
-        self.user: User = user
+        self.user: Optional[User] = user
         self.recommended: list[Story] = []
         # self.parts: list[Part]  # ! NotImplemented. In the future, if Part text retrieval is a part of this library, that would warrant the creation of a seperate Part singleton. Right now, having self.parts would cause inconsistency with the rest of the library.
         self.data = StoryModel(id=self.id, **kwargs)
@@ -395,6 +405,11 @@ class Story(metaclass=create_singleton()):
         )
         if "id" in data:
             data.pop("id")
+        if "user" in data:
+            user_data = data.pop("user")
+            user = User(user_data.pop("username"))
+            user._update_data(**user_data)
+            self.user = user
 
         self.data = StoryModel(id=self.id, **data)
 
@@ -480,7 +495,9 @@ class List(metaclass=create_singleton()):
         stories (list[Story]): Stories included within this List.
     """
 
-    def __init__(self, id: str, user: User, name: str = "", stories: list[Story] = []):
+    def __init__(
+        self, id: int, user: User, name: str = "", stories: set[Story] = set()
+    ):
         """Creates a List object.
 
         Args:
@@ -489,10 +506,10 @@ class List(metaclass=create_singleton()):
             name (str, optional): The name of this List. Defaults to "".
             stories (list[Story], optional): The Stories within this List. Defaults to [].
         """
-        self.id = id.lower()
+        self.id = id
         self.name: str = name
         self.user: User = user
-        self.stories: list[Story] = stories
+        self.stories: set[Story] = stories
 
     def __repr__(self) -> str:
         return f"<List id={self.id}>"
@@ -501,7 +518,7 @@ class List(metaclass=create_singleton()):
         self,
         name: Optional[str] = None,
         user: Optional[User] = None,
-        stories: Optional[list[Story]] = None,
+        stories: Optional[set[Story]] = None,
     ):
         """Updates self.data with the provided arguments, overwriting any duplicate values with a preference towards provided arguments.
 
