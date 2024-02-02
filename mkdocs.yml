@@ -3,7 +3,7 @@
 
 site_name: Wattpad
 repo_url: https://github.com/TheOnlyWayUp/wattpad/
-site_url: https://wattpad.rambhat.la
+site_url: https://wattpad-py.readthedocs.io/en/latest/
 site_author: TheOnlyWayUp
 
 strict: true

@@ -52,18 +52,18 @@ Unlike other API Wrappers (which don't exist, or don't work), `wattpad` is **ful
 
 `wattpad` is also memory and resource efficient, to the extent of meriting the `Green Code` badge.
 
-The most compelling of all, is the **autocompletion support**. (For autocomplete like the GIF above, press `ctrl + .`.)
+The most compelling of all, is the **autocompletion support**. (For autocomplete like the GIF above, press `ctrl + .`)
 
 ### Core features:
 
-- [Memory Efficiency & Caching](https://wattpad.rambhat.la/memory-efficiency)
-- [Asynchronous Usage](https://wattpad.rambhat.la/sync-and-async)
+- [Memory Efficiency & Caching](https://wattpad-py.readthedocs.io/en/latest/memory-efficiency)
+- [Asynchronous Usage](https://wattpad-py.readthedocs.io/en/latest/sync-and-async)
 - Autocompletion Support and Fully Typed Codebase
 
 ### Using `wattpad`
-Check out the [quickstart notebook](https://wattpad.rambhat.la/quickstart)!
+Check out the [quickstart notebook](https://wattpad-py.readthedocs.io/en/latest/quickstart)!
 
-For a more thorough introduction, visit the [documentation](https:/wattpad.rambhat.la).
+For a more thorough introduction, visit the [documentation](https://wattpad-py.readthedocs.io/en/latest/).
 
 
 ## Get Support
