@@ -8,10 +8,10 @@
 <a href="https://www.gnu.org/licenses/gpl-3.0">
     <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" alt="GPLv3">
 </a>
-<a href="https://pypi.org/projects/wattpad">
+<a href="https://pypi.org/project/wattpad">
     <img src="https://img.shields.io/pypi/dm/wattpad?style=for-the-badge&logo=python&logoColor=white&link=https%3A%2F%2Fpypi.org%2Fproject%2Fwattpad" alt="PyPI Downloads">
 </a>
-<a href="https://pypi.org/projects/wattpad">
+<a href="https://pypi.org/project/wattpad">
     <img src="https://img.shields.io/pypi/v/wattpad?style=for-the-badge" alt="PyPI Version">
 </a>
 <a href="#">
